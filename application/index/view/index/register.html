@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>匿名社交圈 - 注册</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit">
+    <link rel="stylesheet" href="__CDN__/assets/css/frontend.css">
+    <link rel="stylesheet" href="__CDN__/assets/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="__CDN__/assets/libs/font-awesome/css/font-awesome.min.css">
+    <style>
+        body {
+            background: #f8f9fa;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .register-wrapper {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .register-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            background: #007bff;
+            border: none;
+        }
+        .btn-submit:hover {
+            background: #0056b3;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .login-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 576px) {
+            .register-wrapper {
+                margin: 15px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="register-wrapper">
+            <h2 class="register-title">注册账号</h2>
+            <form id="register-form" class="form-horizontal" role="form" method="post">
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                        <input type="text" class="form-control" id="nickname" name="nickname" placeholder="请输入昵称" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="请输入密码" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                        <input type="password" class="form-control" id="repassword" name="repassword" placeholder="请再次输入密码" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-submit">注 册</button>
+                </div>
+                <div class="login-link">
+                    已有账号？<a href="{:url('index/login')}">立即登录</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="__CDN__/assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="__CDN__/assets/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="__CDN__/assets/js/frontend/register.js"></script>
+</body>
+</html>

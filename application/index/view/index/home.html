@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>匿名社交圈</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="__CDN__/assets/css/frontend.css">
+    <link rel="stylesheet" href="__CDN__/assets/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="__CDN__/assets/libs/font-awesome/css/font-awesome.min.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --primary-light: #7966e8;
+            --success-color: #00b894;
+            --danger-color: #d63031;
+        }
+        
+        body { 
+            background: #f0f0f8; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        /* Header styles */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: var(--primary-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
+            z-index: 100;
+        }
+        .header-title {
+            line-height: 50px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+            color: white;
+        }
+
+        /* Main content styles */
+        .main-content {
+            margin-top: 60px;
+            margin-bottom: 70px;
+            padding: 0 12px;
+            min-height: calc(100vh - 130px);
+        }
+
+        /* Post card styles */
+        .post-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.05);
+            transition: transform 0.2s ease;
+        }
+        .post-card:active {
+            transform: scale(0.98);
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #eee;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .post-info {
+            flex: 1;
+        }
+        .nickname {
+            font-weight: 500;
+            font-size: 15px;
+            color: #333;
+        }
+        .post-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 2px;
+        }
+        .post-content {
+            margin: 12px 0;
+            font-size: 15px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #2c3e50;
+        }
+
+        /* Post actions styles */
+        .post-actions {
+            display: flex;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+        .action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            color: #666;
+            border: none;
+            background: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .action-btn i {
+            margin-right: 4px;
+            transition: transform 0.2s ease;
+        }
+        .action-btn:active i {
+            transform: scale(1.2);
+        }
+        .action-btn.active {
+            color: var(--primary-color);
+        }
+        .action-btn.liked {
+            color: var(--danger-color);
+        }
+
+        /* Floating action button styles */
+        .post-btn {
+            position: fixed;
+            right: 20px;
+            bottom: 80px;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(108,92,231,.5);
+            z-index: 99;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .post-btn i {
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+        .post-btn:active {
+            transform: scale(0.9);
+            background: var(--primary-light);
+        }
+        .post-btn:active i {
+            transform: rotate(90deg);
+        }
+
+        /* Bottom navigation styles */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: white;
+            display: flex;
+            box-shadow: 0 -1px 3px rgba(0,0,0,.1);
+            z-index: 98;
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 2px;
+            transition: transform 0.2s ease;
+        }
+        .nav-item:active i {
+            transform: scale(1.2);
+        }
+
+        /* Logout button styles */
+        .logout-btn {
+            position: absolute;
+            right: 12px;
+            top: 0;
+            height: 50px;
+            line-height: 50px;
+            padding: 0 15px;
+            color: white;
+            transition: transform 0.2s ease;
+        }
+        .logout-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* Create post modal styles */
+        .create-post-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 999;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            transform: translateY(100%);
+            animation: slideUp 0.3s ease forwards;
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+        .close-modal {
+            border: none;
+            background: none;
+            color: #999;
+            font-size: 24px;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+        }
+        .close-modal:active {
+            background: #f5f5f5;
+        }
+        .post-textarea {
+            width: 100%;
+            height: 150px;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 15px;
+            resize: none;
+            margin-bottom: 15px;
+        }
+        .post-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .submit-post {
+            width: 100%;
+            height: 44px;
+            border: none;
+            border-radius: 22px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .submit-post:disabled {
+            background: #ccc;
+        }
+        .submit-post:active:not(:disabled) {
+            transform: scale(0.98);
+            background: var(--primary-light);
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Empty state */
+        .empty-state {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        .empty-state i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Pull to refresh indicator */
+        .pull-to-refresh {
+            position: fixed;
+            top: 50px;
+            left: 0;
+            right: 0;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 14px;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+        .pull-to-refresh.visible {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">匿名社交圈</div>
+        <a href="{:url('index/logout')}" class="logout-btn">
+            <i class="fa fa-sign-out"></i>
+        </a>
+    </div>
+
+    <div class="pull-to-refresh">
+        <i class="fa fa-refresh fa-spin"></i>
+        <span class="ml-2">正在刷新...</span>
+    </div>
+
+    <div class="main-content">
+        <div class="empty-state">
+            <i class="fa fa-comments-o"></i>
+            <p>还没有任何帖子<br>快来发布第一条动态吧！</p>
+        </div>
+
+        {foreach $posts as $post}
+        <div class="post-card" data-id="{$post.id}">
+            <div class="post-header">
+                <div class="avatar">
+                    {if $post.avatar}
+                    <img src="{$post.avatar}" alt="avatar">
+                    {else}
+                    <i class="fa fa-user text-muted"></i>
+                    {/if}
+                </div>
+                <div class="post-info">
+                    <div class="nickname">{$post.nickname}</div>
+                    <div class="post-time">{$post.timeago}</div>
+                </div>
+            </div>
+            <div class="post-content">{$post.content}</div>
+            <div class="post-actions">
+                <button class="action-btn like-btn {$post.is_liked ? 'liked' : ''}" data-id="{$post.id}">
+                    <i class="fa fa-thumbs-up"></i>
+                    <span class="like-count">{$post.likes}</span>
+                </button>
+                <button class="action-btn comment-btn" data-id="{$post.id}">
+                    <i class="fa fa-comment"></i>
+                    <span class="comment-count">{$post.comments}</span>
+                </button>
+            </div>
+        </div>
+        {/foreach}
+    </div>
+
+    <button class="post-btn" id="createPost">
+        <i class="fa fa-plus"></i>
+    </button>
+
+    <div class="bottom-nav">
+        <a href="{:url('index/home')}" class="nav-item active">
+            <i class="fa fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="javascript:;" class="nav-item" id="refresh">
+            <i class="fa fa-refresh"></i>
+            <span>刷新</span>
+        </a>
+        <a href="javascript:;" class="nav-item">
+            <i class="fa fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+
+    <div class="create-post-modal" id="postModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">发布新动态</div>
+                <button class="close-modal" id="closeModal">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <textarea class="post-textarea" id="postContent" placeholder="分享你的想法..." maxlength="500"></textarea>
+            <button class="submit-post" id="submitPost" disabled>发布</button>
+        </div>
+    </div>
+
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="__CDN__/assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="__CDN__/assets/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="__CDN__/assets/libs/layer/layer.js"></script>
+    <script src="__CDN__/assets/js/require.js" data-main="__CDN__/assets/js/require-frontend.js"></script>
+    <script>
+        // 页面加载完成后初始化
+        $(function() {
+            // 变量声明
+            const $postModal = $('#postModal');
+            const $postContent = $('#postContent');
+            const $submitPost = $('#submitPost');
+            const $loadingSpinner = $('.loading-spinner');
+            const $emptyState = $('.empty-state');
+            const $mainContent = $('.main-content');
+            let isLoading = false;
+            let lastScrollTop = 0;
+            let refreshing = false;
+
+            // 检查是否显示空状态
+            function checkEmptyState() {
+                if ($('.post-card').length === 0) {
+                    $emptyState.show();
+                } else {
+                    $emptyState.hide();
+                }
+            }
+
+            // 初始化检查空状态
+            checkEmptyState();
+
+            // 显示/隐藏加载动画
+            function toggleLoading(show) {
+                isLoading = show;
+                $loadingSpinner.toggle(show);
+            }
+
+            // 格式化时间
+            function formatTimeAgo(timestamp) {
+                const now = Math.floor(Date.now() / 1000);
+                const diff = now - timestamp;
+                
+                if (diff < 60) return '刚刚';
+                if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
+                if (diff < 86400) return Math.floor(diff / 3600) + '小时前';
+                if (diff < 2592000) return Math.floor(diff / 86400) + '天前';
+                
+                const date = new Date(timestamp * 1000);
+                return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate() + '日';
+            }
+
+            // 创建帖子卡片HTML
+            function createPostCard(post) {
+                return `
+                    <div class="post-card" data-id="${post.id}">
+                        <div class="post-header">
+                            <div class="avatar">
+                                ${post.avatar 
+                                    ? `<img src="${post.avatar}" alt="avatar">` 
+                                    : '<i class="fa fa-user text-muted"></i>'}
+                            </div>
+                            <div class="post-info">
+                                <div class="nickname">${post.nickname}</div>
+                                <div class="post-time">${formatTimeAgo(post.createtime)}</div>
+                            </div>
+                        </div>
+                        <div class="post-content">${post.content}</div>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn ${post.is_liked ? 'liked' : ''}" data-id="${post.id}">
+                                <i class="fa fa-thumbs-up"></i>
+                                <span class="like-count">${post.likes}</span>
+                            </button>
+                            <button class="action-btn comment-btn" data-id="${post.id}">
+                                <i class="fa fa-comment"></i>
+                                <span class="comment-count">${post.comments}</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 打开发帖模态框
+            $('#createPost').on('click', function() {
+                $postModal.fadeIn(300);
+                $postContent.focus();
+            });
+
+            // 关闭发帖模态框
+            $('#closeModal').on('click', function() {
+                $postModal.fadeOut(300);
+                $postContent.val('');
+                updateSubmitButton();
+            });
+
+            // 点击模态框背景关闭
+            $postModal.on('click', function(e) {
+                if (e.target === this) {
+                    $(this).fadeOut(300);
+                    $postContent.val('');
+                    updateSubmitButton();
+                }
+            });
+
+            // 更新发布按钮状态
+            function updateSubmitButton() {
+                const content = $postContent.val().trim();
+                $submitPost.prop('disabled', content.length === 0);
+            }
+
+            // 监听输入更新按钮状态
+            $postContent.on('input', updateSubmitButton);
+
+            // 发布新帖子
+            $submitPost.on('click', async function() {
+                const content = $postContent.val().trim();
+                if (!content) return;
+
+                toggleLoading(true);
+                try {
+                    const response = await $.ajax({
+                        url: '{:url("index/createPost")}',
+                        type: 'POST',
+                        data: { content },
+                        dataType: 'json'
+                    });
+
+                    if (response.code === 1) {
+                        // 添加新帖子到列表顶部
+                        const postHtml = createPostCard(response.data);
+                        $mainContent.prepend(postHtml);
+                        
+                        // 关闭模态框并清空输入
+                        $postModal.fadeOut(300);
+                        $postContent.val('');
+                        updateSubmitButton();
+                        checkEmptyState();
+                        
+                        // 显示成功提示
+                        layer.msg('发布成功', {icon: 1});
+                    } else {
+                        layer.msg(response.msg || '发布失败，请重试', {icon: 2});
+                    }
+                } catch (error) {
+                    console.error('发布失败:', error);
+                    layer.msg('发布失败，请重试', {icon: 2});
+                } finally {
+                    toggleLoading(false);
+                }
+            });
+
+            // 点赞功能
+            $(document).on('click', '.like-btn', async function() {
+                if (isLoading) return;
+                
+                const $btn = $(this);
+                const postId = $btn.data('id');
+                const isLiked = $btn.hasClass('liked');
+                
+                toggleLoading(true);
+                try {
+                    const response = await $.ajax({
+                        url: '{:url("index/toggleLike")}',
+                        type: 'POST',
+                        data: { post_id: postId },
+                        dataType: 'json'
+                    });
+
+                    if (response.code === 1) {
+                        const $count = $btn.find('.like-count');
+                        const currentCount = parseInt($count.text());
+                        
+                        if (isLiked) {
+                            $btn.removeClass('liked');
+                            $count.text(currentCount - 1);
+                        } else {
+                            $btn.addClass('liked');
+                            $count.text(currentCount + 1);
+                        }
+                    } else {
+                        layer.msg(response.msg || '操作失败，请重试', {icon: 2});
+                    }
+                } catch (error) {
+                    console.error('点赞失败:', error);
+                    layer.msg('操作失败，请重试', {icon: 2});
+                } finally {
+                    toggleLoading(false);
+                }
+            });
+
+            // 评论功能（待实现）
+            $(document).on('click', '.comment-btn', function() {
+                const postId = $(this).data('id');
+                layer.msg('评论功能开发中...', {icon: 6});
+            });
+
+            // 刷新功能
+            let isRefreshing = false;
+            
+            async function refreshPosts() {
+                if (isRefreshing) return;
+                isRefreshing = true;
+                
+                $('.pull-to-refresh').addClass('visible');
+                $('#refresh i').addClass('fa-spin');
+                
+                try {
+                    const response = await $.ajax({
+                        url: '{:url("index/getPosts")}',
+                        type: 'GET',
+                        dataType: 'json'
+                    });
+
+                    if (response.code === 1) {
+                        $mainContent.html('');
+                        response.data.forEach(post => {
+                            $mainContent.append(createPostCard(post));
+                        });
+                        checkEmptyState();
+                        layer.msg('刷新成功', {icon: 1});
+                    } else {
+                        layer.msg(response.msg || '刷新失败，请重试', {icon: 2});
+                    }
+                } catch (error) {
+                    console.error('刷新失败:', error);
+                    layer.msg('刷新失败，请重试', {icon: 2});
+                } finally {
+                    isRefreshing = false;
+                    $('.pull-to-refresh').removeClass('visible');
+                    $('#refresh i').removeClass('fa-spin');
+                }
+            }
+
+            // 点击刷新按钮
+            $('#refresh').on('click', refreshPosts);
+
+            // 下拉刷新
+            let touchStartY = 0;
+            let pullDistance = 0;
+            
+            document.addEventListener('touchstart', function(e) {
+                if (window.scrollY === 0) {
+                    touchStartY = e.touches[0].clientY;
+                }
+            });
+
+            document.addEventListener('touchmove', function(e) {
+                if (window.scrollY === 0 && !isRefreshing) {
+                    pullDistance = e.touches[0].clientY - touchStartY;
+                    if (pullDistance > 50) {
+                        $('.pull-to-refresh').addClass('visible');
+                    }
+                }
+            });
+
+            document.addEventListener('touchend', function() {
+                if (pullDistance > 50 && !isRefreshing) {
+                    refreshPosts();
+                }
+                pullDistance = 0;
+                $('.pull-to-refresh').removeClass('visible');
+            });
+
+            // 滚动隐藏/显示发帖按钮
+            $(window).on('scroll', _.throttle(function() {
+                const st = $(window).scrollTop();
+                const $postBtn = $('.post-btn');
+                
+                if (st > lastScrollTop && st > 100) {
+                    // 向下滚动
+                    $postBtn.css('transform', 'translateY(100px)');
+                } else {
+                    // 向上滚动
+                    $postBtn.css('transform', 'translateY(0)');
+                }
+                
+                lastScrollTop = st;
+            }, 200));
+        });
+    </script>
+</body>
+</html>
